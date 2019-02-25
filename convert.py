@@ -109,9 +109,9 @@ def txt2xml(img_folder_path,converted_xml_path,csv_path):
     print('all done!')
 
 def txt2xml_single_thread(img_path):
-    img_folder_path='D:\python_projects\huawei\\traindataset\\trian_Image'
+    img_folder_path='D:\python_projects\ChineseCalligraphyDetection\data\\train_img'
     csv_path='D:\python_projects\huawei\\traindataset\\train_label.csv'
-    converted_xml_path='D:\python_projects\huawei\\traindataset\\train_anno'
+    converted_xml_path='D:\python_projects\ChineseCalligraphyDetection\data\\annotation'
     global chinese
     if (img_path.endswith('.png') or img_path.endswith('.jpg')) and img_path != '1.png':
         doc = Document()
@@ -156,10 +156,10 @@ def txt2xml_single_thread(img_path):
             # print('i=',i)
             object_new = doc.createElement('object')
             annotation.appendChild(object_new)
-            name = doc.createElement('name')
-            object_new.appendChild(name)
-            name_txt = doc.createTextNode(res.loc[i, 'text'])
-            name.appendChild(name_txt)
+            # name = doc.createElement('name')
+            # object_new.appendChild(name)
+            # name_txt = doc.createTextNode(res.loc[i, 'text'])
+            # name.appendChild(name_txt)
 
             for c in res.loc[i, 'text']:
                 chinese.add(c)
@@ -197,10 +197,7 @@ def txt2xml_single_thread(img_path):
             ymax_text = doc.createTextNode(str(ymax_int))
             ymax.appendChild(ymax_text)
 
-        xml_path = os.path.join(converted_xml_path, img_path.strip('.jpg') + '.xml')
-        # temp=doc.toprettyxml(indent='\t',encoding='utf-8')
-        # print(temp)
-        # print('++++++++++++')
+        xml_path = os.path.join(converted_xml_path, img_path.strip('.jpg') + 'g.xml')
         with open(xml_path, 'w', encoding='utf-8') as f:
             doc.writexml(f, indent='\t', encoding='utf-8', newl='\n', addindent='\t')
             print(xml_path + ' done!')
@@ -208,10 +205,11 @@ def txt2xml_single_thread(img_path):
 def csv2xml_multiThread():
     global chinese
     chinese=set()
-    threadcount=128
+    threadcount=1280
     pool = threadpool.ThreadPool(threadcount)
+    print(os.listdir('D:\python_projects\ChineseCalligraphyDetection\data\\train_img'))
     request = threadpool.makeRequests(txt2xml_single_thread,
-                                      os.listdir('D:\python_projects\huawei\\traindataset\\trian_Image'))
+                                      os.listdir('D:\python_projects\ChineseCalligraphyDetection\data\\train_img'))
     [pool.putRequest(req) for req in request]
     pool.wait()
     with open('data/chinese/chinese.txt','w',encoding='utf-8') as f:
@@ -229,15 +227,21 @@ def merge_chinese():
     for i in vailidate_character:
         train_character.add(i)
     print(len(train_character))
-    with open('data/chinese/chinese_all.txt', 'w') as f:
+    with open('data/chinese/chinese_all.txt', 'w',encoding='utf-8') as f:
         f.write(','.join(list(train_character)))
 
+def handle_xml_bugs():
+    import xml.etree.ElementTree as ET
+
+    tree = ET.parse("data/annotation/img_calligraphy_00001_b.xml")
+    root = tree.getroot()
+    filename=root.find('filename').text
+    print(filename)
+    for obj in root.iter('object'):
+        print(obj.find('name').text)
 
 if __name__=='__main__':
     csv2xml_multiThread()
-    # txt2xml('D:\python_projects\huawei\\traindataset\\trian_Image',
-    #         'D:\python_projects\huawei\\traindataset\\train_anno',
-    #         'D:\python_projects\huawei\\traindataset\\train_label.csv')
 
 
 

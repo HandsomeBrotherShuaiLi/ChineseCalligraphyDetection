@@ -22,6 +22,7 @@ class DataLoader:
         self.__rd = random_uniform_num(self.total_size)
         self.__data_queue = []
         self.xmlfiles = np.array(self.xmlfiles)
+        # print(self.total_size,self.batch_size)
         self.steps_per_epoch = self.total_size // self.batch_size
         self.__init_queue()
 

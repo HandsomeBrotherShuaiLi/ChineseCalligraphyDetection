@@ -139,6 +139,8 @@ class CTPN:
 
     def train(self, train_data_generator, epochs, **kwargs):
         self.parallel_model.fit_generator(train_data_generator, epochs=epochs, **kwargs)
+    # def train(self, train_data_generator, epochs):
+    #     self.parallel_model.fit_generator(train_data_generator, epochs=epochs)
 
     def predict(self, image, output_path=None, mode=1):
 

@@ -1,5 +1,6 @@
 import numpy as np
 import xmltodict
+import xml.etree.ElementTree as ET
 import os
 import cv2
 import matplotlib.pyplot as plt
@@ -25,24 +26,35 @@ DEBUG = True
 
 def readxml(path):
     gtboxes = []
-    with open(path, 'rb') as f:
-        xml = xmltodict.parse(f)
-        bboxes = xml['annotation']['object']
-        if (type(bboxes) != list):
-            x1 = bboxes['bndbox']['xmin']
-            y1 = bboxes['bndbox']['ymin']
-            x2 = bboxes['bndbox']['xmax']
-            y2 = bboxes['bndbox']['ymax']
-            gtboxes.append((int(x1), int(y1), int(x2), int(y2)))
-        else:
-            with ThreadPoolExecutor() as executor:
-                for x1, y1, x2, y2 in executor.map(lambda bbox: (bbox['bndbox']['xmin'], bbox['bndbox']['ymin'],
-                                                                 bbox['bndbox']['xmax'], bbox['bndbox']['ymax']),
-                                                   bboxes):
-                    gtboxes.append((int(x1), int(y1), int(x2), int(y2)))
+    # with open(path,encoding='utf-8') as f:
+    #     xml = xmltodict.parse(f)
+    #     # xml=minidom.parse(path).toxml('utf-8')
+    #     bboxes = xml['annotation']['object']
+    #     if (type(bboxes) != list):
+    #         x1 = bboxes['bndbox']['xmin']
+    #         y1 = bboxes['bndbox']['ymin']
+    #         x2 = bboxes['bndbox']['xmax']
+    #         y2 = bboxes['bndbox']['ymax']
+    #         gtboxes.append((int(x1), int(y1), int(x2), int(y2)))
+    #     else:
+    #         with ThreadPoolExecutor() as executor:
+    #             for x1, y1, x2, y2 in executor.map(lambda bbox: (bbox['bndbox']['xmin'], bbox['bndbox']['ymin'],
+    #                                                              bbox['bndbox']['xmax'], bbox['bndbox']['ymax']),
+    #                                                bboxes):
+    #                 gtboxes.append((int(x1), int(y1), int(x2), int(y2)))
+    #
+    #     imgfile = xml['annotation']['filename']
+    #     print('bboxes num is '+str(len(bboxes)))
+    tree = ET.parse(path)
+    root = tree.getroot()
+    imgfile = root.find('filename').text
+    print(imgfile)
 
-        imgfile = xml['annotation']['filename']
-        print('bboxes num is '+str(len(bboxes)))
+    for obj in root.iter('object'):
+        xmlbox=obj.find('bndbox')
+        b = (int(xmlbox.find('xmin').text), int(xmlbox.find('ymin').text), int(xmlbox.find('xmax').text),
+             int(xmlbox.find('ymax').text))
+        gtboxes.append(b)
     return np.array(gtboxes), imgfile
 
 
