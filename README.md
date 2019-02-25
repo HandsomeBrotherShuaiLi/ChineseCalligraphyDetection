@@ -17,7 +17,7 @@ Therefore,the two main models are：
 
 ### system environment
 
-OS: win10
-Python: 3.6
-tensorflow:1.9.0
-keras:2.2.4
+OS: win10  
+Python: 3.6  
+tensorflow:1.9.0  
+keras:2.2.4  
