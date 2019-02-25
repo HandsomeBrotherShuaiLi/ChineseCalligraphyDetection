@@ -219,6 +219,20 @@ def csv2xml_multiThread():
     print('all done!')
 
 
+def merge_chinese():
+    f1 = open('data/chinese/chinese.txt', 'r', encoding='utf-8').readlines()
+    f2 = open('data/chinese/chinese_2.txt', 'r', encoding='utf-8').readlines()
+    train_character = set(f1[0].split(','))
+    print(len(train_character))
+    vailidate_character = set(f2[0].split(','))
+    print(len(vailidate_character))
+    for i in vailidate_character:
+        train_character.add(i)
+    print(len(train_character))
+    with open('data/chinese/chinese_all.txt', 'w') as f:
+        f.write(','.join(list(train_character)))
+
+
 if __name__=='__main__':
     csv2xml_multiThread()
     # txt2xml('D:\python_projects\huawei\\traindataset\\trian_Image',
