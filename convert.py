@@ -102,15 +102,15 @@ def txt2xml(img_folder_path,converted_xml_path,csv_path):
             # print('++++++++++++')
             with open(xml_path,'w') as f:
                 doc.writexml(f,indent='\t',encoding='utf-8',newl='\n',addindent='\t')
-                print(xml_path+'done!')
-    with open('data/chinese/chinese.txt','w') as f:
+                print(xml_path+' Done!')
+    with open('data/chinese/chinese_2.txt','w') as f:
         f.write(','.join(list(chinese)))
     print('all done!')
 
 if __name__=='__main__':
-    txt2xml('D:\python_projects\huawei\\traindataset\\trian_Image',
-            'D:\python_projects\huawei\\traindataset\\train_anno',
-            'D:\python_projects\huawei\\traindataset\\train_label.csv')
+    txt2xml('D:\python_projects\huawei\\traindataset\\verifyImage',
+            'D:\python_projects\huawei\\traindataset\\verify_anno',
+            'D:\python_projects\huawei\\traindataset\\verify_label.csv')
 
 
 
