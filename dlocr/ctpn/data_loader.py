@@ -22,15 +22,22 @@ class DataLoader:
         self.__rd = random_uniform_num(self.total_size)
         self.__data_queue = []
         self.xmlfiles = np.array(self.xmlfiles)
-        # print(self.total_size,self.batch_size)
         self.steps_per_epoch = self.total_size // self.batch_size
         self.__init_queue()
 
+    # def __init_queue(self):
+    #     cache_size_xmlfiles=self.xmlfiles[self.__rd.get(self.cache_size)]
+    #     print('init xmlfile size',len(cache_size_xmlfiles))
+    #     for i in cache_size_xmlfiles:
+    #         self.__data_queue.append(
+    #             self.__single_sample(i)
+    #         )
     def __init_queue(self):
         with ThreadPoolExecutor() as executor:
             for data in executor.map(lambda xml_path: self.__single_sample(xml_path),
                                      self.xmlfiles[self.__rd.get(self.cache_size)]):
                 self.__data_queue.append(data)
+        # print('data queue size ',len(self.__data_queue))
 
     def __single_sample(self, xml_path):
         gtbox, imgfile = readxml(xml_path)
@@ -48,6 +55,8 @@ class DataLoader:
             h, w, c = img.shape
 
             # clip image
+            # print('img shape', img.shape)
+            # print(gtbox,gtbox.shape)
             if np.random.randint(0, 100) > 50:
                 img = img[:, ::-1, :]
                 newx1 = w - gtbox[:, 2] - 1

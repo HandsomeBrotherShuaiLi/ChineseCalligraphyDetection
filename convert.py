@@ -2,6 +2,7 @@ import os
 from xml.dom.minidom import Document
 import cv2,pandas as pd,numpy as np
 import threadpool
+import xml.etree.ElementTree as ET
 def txt2xml(img_folder_path,converted_xml_path,csv_path):
     """
 
@@ -110,9 +111,9 @@ def txt2xml(img_folder_path,converted_xml_path,csv_path):
 
 def txt2xml_single_thread(img_path):
     img_folder_path='D:\python_projects\ChineseCalligraphyDetection\data\\train_img'
-    csv_path='D:\python_projects\huawei\\traindataset\\train_label.csv'
+    csv_path='D:\python_projects\ChineseCalligraphyDetection\data\original_csv\concat_train.csv'
     converted_xml_path='D:\python_projects\ChineseCalligraphyDetection\data\\annotation'
-    global chinese
+    # global chinese
     if (img_path.endswith('.png') or img_path.endswith('.jpg')) and img_path != '1.png':
         doc = Document()
         annotation = doc.createElement('annotation')
@@ -161,8 +162,8 @@ def txt2xml_single_thread(img_path):
             # name_txt = doc.createTextNode(res.loc[i, 'text'])
             # name.appendChild(name_txt)
 
-            for c in res.loc[i, 'text']:
-                chinese.add(c)
+            # for c in res.loc[i, 'text']:
+            #     chinese.add(c)
             bndbox = doc.createElement('bndbox')
             object_new.appendChild(bndbox)
             """
@@ -229,19 +230,33 @@ def merge_chinese():
     print(len(train_character))
     with open('data/chinese/chinese_all.txt', 'w',encoding='utf-8') as f:
         f.write(','.join(list(train_character)))
-
-def handle_xml_bugs():
-    import xml.etree.ElementTree as ET
-
-    tree = ET.parse("data/annotation/img_calligraphy_00001_b.xml")
+def merge_csv():
+    train_csv=pd.read_csv('D:\python_projects\huawei\\traindataset\\train_label.csv')
+    validation_csv=pd.read_csv('D:\python_projects\huawei\\traindataset\\verify_label.csv')
+    ans=pd.concat([train_csv,validation_csv],ignore_index=True)
+    ans.to_csv('data/original_csv/concat_train.csv',index=False)
+def handle_xml_bugs_single(xmlpath):
+    base_dir='D:\python_projects\ChineseCalligraphyDetection\data\\annotation'
+    tree = ET.parse(os.path.join(base_dir,xmlpath))
     root = tree.getroot()
-    filename=root.find('filename').text
-    print(filename)
-    for obj in root.iter('object'):
-        print(obj.find('name').text)
+    res=root.findall('object')
+    if len(res)==0:
+        print(xmlpath,'没有gbboxes，进行处理')
+        imgpath=xmlpath.strip('.xml')+'.jpg'
+        print('开始处理图片 ',imgpath)
+        txt2xml_single_thread(imgpath)
+def handle_xml_bugs():
+    threadcount = 1280
+    pool = threadpool.ThreadPool(threadcount)
+    request = threadpool.makeRequests(handle_xml_bugs_single,
+                                      os.listdir('D:\python_projects\ChineseCalligraphyDetection\data\\annotation'))
+    [pool.putRequest(req) for req in request]
+    pool.wait()
+    print('all done!')
 
 if __name__=='__main__':
-    csv2xml_multiThread()
+    handle_xml_bugs()
+
 
 
 

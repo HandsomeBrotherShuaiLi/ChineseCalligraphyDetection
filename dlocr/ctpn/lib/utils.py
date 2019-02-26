@@ -48,13 +48,13 @@ def readxml(path):
     tree = ET.parse(path)
     root = tree.getroot()
     imgfile = root.find('filename').text
-    print(imgfile)
-
     for obj in root.iter('object'):
         xmlbox=obj.find('bndbox')
         b = (int(xmlbox.find('xmin').text), int(xmlbox.find('ymin').text), int(xmlbox.find('xmax').text),
              int(xmlbox.find('ymax').text))
         gtboxes.append(b)
+    if len(gtboxes)==0:
+        print(imgfile,' 没有gtboxes')
     return np.array(gtboxes), imgfile
 
 
@@ -281,6 +281,7 @@ class random_uniform_num():
         self.range = [i for i in range(total)]
         np.random.shuffle(self.range)
         self.index = start
+        print('取片的Index是',self.index)
 
     def get(self, batch_size):
         ret = []
