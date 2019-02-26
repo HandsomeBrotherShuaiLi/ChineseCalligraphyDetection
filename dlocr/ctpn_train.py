@@ -11,6 +11,7 @@ from dlocr.ctpn import default_ctpn_config_path
 
 
 if __name__ == '__main__':
+    # print(os.listdir('../dlocr/logs'))
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -52,12 +53,12 @@ if __name__ == '__main__':
 
     checkpoint = SingleModelCK(save_weigths_file_path, model=ctpn.model, save_weights_only=True)
     earlystop = EarlyStopping(patience=10)
-    log = TensorBoard(log_dir='dlocr/logs', histogram_freq=0, batch_size=1, write_graph=True, write_grads=False)
+    log = TensorBoard(log_dir='../dlocr/logs', histogram_freq= 1 , write_graph=True, write_images=False,batch_size=1)
     lr_scheduler = LRScheduler(lambda epoch, lr: lr / 2, watch="loss", watch_his_len=2)
     # print(data_loader.steps_per_epoch,args.epochs)
 
     ctpn.train(data_loader.load_data(),
                epochs=args.epochs,
                steps_per_epoch=data_loader.steps_per_epoch,
-               callbacks=[checkpoint, earlystop, lr_scheduler],
+               callbacks=[log,checkpoint, earlystop, lr_scheduler],
                initial_epoch=args.initial_epoch)
