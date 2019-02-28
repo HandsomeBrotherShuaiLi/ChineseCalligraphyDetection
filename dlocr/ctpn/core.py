@@ -12,6 +12,7 @@ from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
 
 from dlocr.ctpn.lib import utils
+from dlocr.ctpn.data_loader import DataLoader
 from dlocr.ctpn.lib.text_proposal_connector_oriented import TextProposalConnectorOriented
 
 
@@ -137,8 +138,14 @@ class CTPN:
 
         return train_model, parallel_model, predict_model
 
-    def train(self, train_data_generator, epochs, **kwargs):
-        self.parallel_model.fit_generator(train_data_generator, epochs=epochs, **kwargs)
+    def train(self, train_data_loader: DataLoader, valid_data_loader: DataLoader, epochs, **kwargs):
+        self.parallel_model.fit_generator(
+            generator=train_data_loader.load_data(),
+            epochs=epochs,
+            steps_per_epoch=train_data_loader.steps_per_epoch,
+            validation_data=valid_data_loader.load_data(),
+            validation_steps=valid_data_loader.steps_per_epoch,
+            **kwargs)
     # def train(self, train_data_generator, epochs):
     #     self.parallel_model.fit_generator(train_data_generator, epochs=epochs)
 

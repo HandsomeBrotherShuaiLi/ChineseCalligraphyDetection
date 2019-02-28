@@ -78,3 +78,4 @@ class DataLoader:
             regr = np.expand_dims(regr, axis=0)
 
             yield m_img, {'rpn_class': cls, 'rpn_regress': regr}
+
